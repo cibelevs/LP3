@@ -35,7 +35,8 @@ public class Executa_Single{
         }
     }
 
-   /** * public static class MeuCallabe implements Callable<String> {
+   /** * (depois colocar isso em um arquivo separado para ver a dirença entre Runnable e Callable)
+    * public static class MeuCallabe implements Callable<String> {
         @Override
         public String call() throws Exception { 
             System.out.println("Executando a tarefa em uma thread separada.");
@@ -44,6 +45,27 @@ public class Executa_Single{
             return nome;
         }
     } 
+
+    Mudanças feitas na classe Executor:
+    public static void main (String[] args) throws InterruptedException {
+        ExecutorService executor = null;
+        try {
+            executor = Executors.newSingleThreadExecutor();
+            Future<String> future = executor.submit(new MeuCallabe());
+            System.out.println(future.isDone());
+            String resultado = future.get(); // bloqueia até a tarefa ser concluída
+            System.out.println(future.get(1, TimeUnit.SECONDS));
+            System.out.println(future.isDone());
+        }      
+         catch (Exception e) {
+            throw e;
+        } finally{
+            if (executor != null) {
+                executor.shutdownNow();
+            }
+        }
+        }
+
     **/
 }
 
