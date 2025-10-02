@@ -22,11 +22,12 @@ e. A mensagem do servidor só pode aparecer após as 4 mensagens de
 módulo carregado.*/
 
 public class ModuleLouder implements Runnable {
-    private String moduloNome;
+    private String moduloNome; //nome do módulo
     private int tempoCarregamento; // em milissegundos
-    private ServerInitializer serverInitializer;
+    private ServerInitializer serverInitializer; // servidor inicializador compartilhado
 
 
+    //construtor 
     public ModuleLouder(String moduleName, int loadTime, ServerInitializer serverInitializer) {
         this.moduloNome = moduleName;
         this.tempoCarregamento = loadTime;      
@@ -34,14 +35,15 @@ public class ModuleLouder implements Runnable {
     }
 
     public static void main(String[] args) {
-        ExecutorService executor = Executors.newCachedThreadPool();
-        ServerInitializer serverInitializer = new ServerInitializer();
+        ExecutorService executor = Executors.newCachedThreadPool(); // Cria um pool de threads
+        ServerInitializer serverInitializer = new ServerInitializer(); // Instancia o inicializador do servidor
+         // Submete as tarefas de carregamento dos módulos
         executor.submit(new ModuleLouder("Configuração", 6000, serverInitializer));
         executor.submit(new ModuleLouder("Cache", 9000, serverInitializer));
         executor.submit(new ModuleLouder("Chaves de Criptografia", 12000, serverInitializer));
         executor.submit(new ModuleLouder("Conexão de Log", 4000, serverInitializer));
-        executor.submit(() -> serverInitializer.startServer());
-        executor.shutdown();
+        executor.submit(() -> serverInitializer.startServer()); // Inicia o servidor principal
+        executor.shutdown(); // Encerra o executor após a conclusão das tarefas
     }
 
 
@@ -49,15 +51,25 @@ public class ModuleLouder implements Runnable {
     @Override   
     public void run() {
         try {
-            Thread.sleep(tempoCarregamento);
+            Thread.sleep(tempoCarregamento); // Simula o tempo de carregamento
             System.out.println("Módulo " + moduloNome + " carregado.");
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             // Sinaliza que o módulo foi carregado
             getServerInitializer().getLatch().countDown();
+            //System.out.println("Contador do Latch: " + getServerInitializer().getLatch().getCount());
+            //System.out.println("Thread " + Thread.currentThread().getName() + " finalizada.");
+            modulosCarregados();        
         }
     }
+
+    //Mensagem final de "Operação finalizada depois de todos os módulos carregados"
+    public void modulosCarregados(){
+        if(getServerInitializer().getLatch().getCount() == 0)
+        System.out.println("Todos os módulos carregados.");
+    }
+    
 
     //gets e sets 
     public String getModuloNome() {

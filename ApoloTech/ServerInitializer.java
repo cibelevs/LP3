@@ -28,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 public class ServerInitializer {
     private static CountDownLatch latch = new CountDownLatch(4);
 
+
     /* 
     public static void main(String[] args) {
 
@@ -43,6 +44,10 @@ public class ServerInitializer {
             }
         }); 
     }
+
+        Aqui foi retirado pois esta criando várias instâncias do CountDownLatch
+        e cada instância tem seu próprio contador, o que não é o comportamento desejado.
+
     */
     public void waitForInitialization() {
         try {
