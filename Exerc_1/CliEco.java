@@ -1,4 +1,8 @@
-
+/*
+    Lista de exercicios  
+    1. Implemente um servidor TCP que aceita conexões de clientes e ecoa de volta qualquer
+    mensagem recebida.
+*/
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
