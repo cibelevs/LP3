@@ -13,6 +13,8 @@ public class LockRW {
         ExecutorService executor = Executors.newCachedThreadPool();
         Runnable r1 = () -> {
             Lock writeLock = lock.writeLock();
+            /*bloqueala para escrita (bloqueia todas as threads) */
+            /*ate a ultima thread liberar a leitur, ninguem pode escrever */
             writeLock.lock();
             String name = Thread.currentThread().getName();
             System.out.println(name + " - Escrevendo: " + i);
@@ -23,15 +25,16 @@ public class LockRW {
 
 
         Runnable r2 = () -> {
-            Lock readLock = lock.readLock();
-            readLock.lock();
-            System.out.println("Lendo: " + i);
-            System.out.println("Lido: " + i);
-            readLock.unlock();
+                Lock readLock = lock.readLock();
+                /*bloqueia para leitura (bloqueia apenas a que está escrevendo) */
+                readLock.lock();
+                System.out.println("Lendo: " + i);
+                System.out.println("Lido: " + i);
+                readLock.unlock();
             };
             for (int i = 0; i < 6; i++) {
-            executor.execute(r1);
-            executor.execute(r2);
+                executor.execute(r1);
+                executor.execute(r2);
             }
             executor.shutdown();
     }
