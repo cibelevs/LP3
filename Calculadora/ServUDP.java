@@ -5,12 +5,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class ServidorCalculadoraUDP {
+public class ServUDP {
     private static final int PORT = 5000;
     private static final int BUFFER_SIZE = 1024;
     private Calculadora calculadora;
     
-    public ServidorCalculadoraUDP() {
+    public ServUDP() {
         this.calculadora = new Calculadora();
     }
     
@@ -81,7 +81,7 @@ public class ServidorCalculadoraUDP {
     }
     
     public static void main(String[] args) {
-        ServidorCalculadoraUDP servidor = new ServidorCalculadoraUDP();
+        ServUDP servidor = new ServUDP();
         servidor.iniciar();
     }
 }

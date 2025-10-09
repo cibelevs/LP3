@@ -6,7 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;
 
-public class ClienteCalculadoraUDP {
+public class CliUDP {
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 5000;
     private static final int BUFFER_SIZE = 1024;
