@@ -1,4 +1,4 @@
-package Estacionamento;
+
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,10 +45,12 @@ public class Estac {
     private static Semaphore vagaPri = new Semaphore(2);
     private static Semaphore entrada = new Semaphore(1); //lock serve para sincronizar o acesso ao portão de entrada
     private static Semaphore saida = new Semaphore(1);
-    public Veiculo veiculo;
-    //seria util criar uma lista de veiculos estacionados? nao, pois nao precisamos rastrear quais veiculos estao estacionados
-    ///private List<Veiculo> veiculosEstacionados; 
-
+    private Veiculo veiculo;
+    /*
+        seria util criar uma lista de veiculos estacionados? private List<Veiculo> veiculosEstacionados; 
+        nao, pois nao precisamos rastrear quais veiculos estao estacionados'
+    */ 
+    
 
     public static void main(String[] args) {
         // Implementação do sistema de estacionamento conforme os requisitos
@@ -64,13 +66,13 @@ public class Estac {
                 System.out.println("Veículo " + veiculo.getId() + "tentando acessar o estacionamento.");
                 if(veiculo.getPrioritario()){
                     if(vagaPri.tryAcquire()){
-                        System.out.println("Veículo prioritário" + veiculo.getId() + " conseguiu vaga prioritária.");
+                        System.out.println("Veículo prioritário " + veiculo.getId() + " conseguiu vaga prioritária.");
                         // a vaga prioritaria já é atualizada ao adquirir o semaphore
                         veiculo.setEstacionado(true); // colocar o status de estacionado como true
                     } else {
                         System.out.println("Vagas prioritárias cheias para veículo " + veiculo.getId() + ". Tentando vaga normal.");
                         if(vagaNorm.tryAcquire()){
-                            System.out.println("Veículo prioritário" + veiculo.getId() + " conseguiu vaga normal.");
+                            System.out.println("Veículo prioritário " + veiculo.getId() + " conseguiu vaga normal.");
                             veiculo.setEstacionado(true); // colocar o status de estacionado como true
                         }
                         else {
@@ -81,7 +83,7 @@ public class Estac {
                 }
                 }else {
                     if(vagaNorm.tryAcquire()){
-                        System.out.println("Veículo prioritário" + veiculo.getId() + " conseguiu vaga normal.");
+                        System.out.println("Veículo prioritário " + veiculo.getId() + " conseguiu vaga normal.");
                         veiculo.setEstacionado(true); // colocar o status de estacionado como true
                     } else {
                         System.out.println("Estacionamento cheio para veículo " + veiculo.getId() + ". Saindo sem estacionar.");
@@ -89,11 +91,15 @@ public class Estac {
                         veiculo.setEstacionado(false); // colocar o status de estacionado como false
                     }                        
                 }
+                //imprimirStatus();
             });
 
             try {
-                int tempoEstacionado = 1000 + (int)(Math.random() * 6000);
-                Thread.sleep(tempoEstacionado);
+                int tempoEstacionado = 1000 + (int)(Math.random() * 3000);
+                Thread.sleep(tempoEstacionado);    
+                //int soma = 0;
+                //soma += tempoEstacionado;
+                
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -114,7 +120,44 @@ public class Estac {
 
         
         }
-    
+
+
+        imprimirStatusFinal();
     }
+
+
+
+    public static void imprimirStatus(){
+        System.out.println("\n*------------STATUS DO ESTACIONAMENTO------------*");
+        System.out.println("Vagas regulares disponiveis: " );
+        System.out.println("Vagas prioritárias disponíveis: ");
+        System.out.println("Total de entradas: ");
+        System.out.println("Total de desistências: \n");
+    }
+
+
+    
+
+    public static void imprimirStatusFinal(){
+        System.out.println("\n*------------FIM DO DIA------------*");
+        System.out.println("*------------STATUS DO ESTACIONAMENTO------------*");
+        System.out.println("Total de veiculos: 20");
+        System.out.println("Conseguiram entrar: ");
+        System.out.println("Desistiram: ");
+        System.out.println("Taxa de sucesso: ");
+        System.out.println("Tempo medio de permanencia: ");
+        System.out.println("Tempo mínimo de permanencia: ");
+        System.out.println("Tempo máximo de permanencia: ");
+        System.out.println("Taxa de ocupação: ");
+        System.out.println("----------------------------------------------------\n");
+        System.out.println("SIMULAÇÃO FINALIZADA");
+    }
+
+   
+
+
+
+
+
 }
 

@@ -1,6 +1,5 @@
-package Estacionamento;
 
-class Veiculo {
+public class Veiculo {
     private int id;
     private boolean prioritario;
     private boolean estacionado;
