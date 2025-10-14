@@ -42,8 +42,8 @@ class Produtor implements Runnable {
      // TODO: Implementar geração aleatória
     private Pedido gerarPedidoAleatorio() {
         //não estou conseguindo modificar o random para ser aleatório por enquanto
-        String cliente = CLIENTES[random.nextInt(5)];
-        String produto = PRODUTOS[random.nextInt(5)];
+        String cliente = CLIENTES[random.nextInt(5) + 1];
+        String produto = PRODUTOS[random.nextInt(5) + 1];
         Pedido p = new Pedido(cliente, produto, quantidadePedidos, null);
         return p;
     }

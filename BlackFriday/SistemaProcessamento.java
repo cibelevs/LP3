@@ -17,14 +17,15 @@ public class SistemaProcessamento {
         GerenciadorEstatisticas stats = null;
         
         // TODO: Criar e iniciar Monitor
+        Monitor mon = new Monitor(fila, stats);
         
         // TODO: Criar ExecutorService para produtores (3 threads)
         ExecutorService produtores = null;
         produtores = new Executors.newFixedThreadPool(3);
         // TODO: Criar 3 produtores (API, Web, Mobile) - cada um gera 20 pedidos
-        Produtor p1 = new Produtor(fila, null, 20, stats);
-        Produtor p2 = new Produtor(fila, null, 20, stats);
-        Produtor p3 = new Produtor(fila, null, 20, stats);
+        Produtor p1 = new Produtor(fila, "API", 20, stats);
+        Produtor p2 = new Produtor(fila, "WEB", 20, stats);
+        Produtor p3 = new Produtor(fila, "MOBILE", 20, stats);
 
         // TODO: Criar ExecutorService para consumidores (5 threads)
         ExecutorService consumidores = null;
@@ -51,6 +52,7 @@ public class SistemaProcessamento {
 
 
         // TODO: Parar monitor
+        mon.parar();
         System.out.println("Monitor parado");
         
         // TODO: Exibir relatório final
