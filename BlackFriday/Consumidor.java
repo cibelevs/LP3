@@ -1,9 +1,5 @@
-import java.sql.Time;
 import java.util.Random;
 import java.util.concurrent.*;
-import java.util.ExecutorService;
-
-
 
 class Consumidor implements Runnable {
     private final BlockingQueue<Pedido> fila;
@@ -20,53 +16,55 @@ class Consumidor implements Runnable {
         this.stats = stats;
     }
     
+    // Construtor alternativo para compatibilidade
+    public Consumidor(BlockingQueue<Pedido> fila, GerenciadorEstoque estoque, 
+                     GerenciadorEstatisticas stats, int id) {
+        this(id, fila, estoque, stats);
+    }
+    
     @Override
     public void run() {
         try {
-            System.out.println("[Consumidor-" + id + "] Pronto para processar o pagamento");
+            System.out.println("[Consumidor-" + id + "] Pronto para processar pedidos");
+            
             while (true) {
-                //tempo de 5 segundos?
-                fila.poll(5, null);               
-                // TODO: Remover pedido da fila com timeout (poll com 5 segundos)
-                // Se null, significa que não há mais pedidos, pode encerrar
-                if(fila == null){
-                    System.out.println("Não há mais pedidos!!!");
+                // Poll com timeout de 5 segundos para detectar fim do processamento
+                Pedido pedido = fila.poll(5, TimeUnit.SECONDS);
+                
+                if (pedido == null) {
+                    // Timeout - não há mais pedidos chegando
                     break;
                 }
-                System.out.println("Processando pedidos...");
-                System.out.println("[Consumidor-" + id + "] Finalizou processamento");
-               
-                // TODO: Processar pedido
-                // TODO: Se null, break do loop
                 
-                executor.shutdown();
+                processarPedido(pedido);
             }
+            
             System.out.println("[Consumidor-" + id + "] Finalizou processamento");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println("[Consumidor-" + id + "] Finalizou processamento");
+            System.out.println("[Consumidor-" + id + "] Interrompido");
         }
     }
     
-/*************  ✨ Windsurf Command ⭐  *************/
-    /**
-     * Processa um pedido.
-     * <p>
-     * Verifica se h  estoque suficiente para processar o pedido,
-     * reserva o estoque, simula o processamento do pedido (100-300ms)
-     * e atualiza as estat sticas.
-     * <p>
-     * @param pedido o pedido a ser processado
-     * @throws InterruptedException se o thread for interrompido
-     */
-/*******  ffc31858-a1a2-4522-a873-8bd2c3b96c66  *******/
     private void processarPedido(Pedido pedido) throws InterruptedException {
-        estoque.consultarEstoque(pedido);
-        estoque.reservarEstoque(pedido, id);
-        // TODO: Implementar processamento
-        // 1. Verificar estoque
-        // 2. Reservar estoque
-        // 3. Simular processamento (100-300ms)
-        // 4. Atualizar estatísticas
+        System.out.println("[Consumidor-" + id + "] Processando: " + pedido);
+        
+        // Verificar e reservar estoque
+        boolean estoqueDisponivel = estoque.reservarEstoque(pedido.getProduto(), pedido.getQuantidade());
+        
+        if (estoqueDisponivel) {
+            // Simular tempo de processamento (100-300ms)
+            Thread.sleep(random.nextInt(201) + 100);
+            
+            // Registrar sucesso
+            stats.registrarPedidoProcessado();
+            System.out.println("[Consumidor-" + id + "] Processado com sucesso: " + pedido);
+        } else {
+            // Devolver ao estoque (se alguma reserva parcial foi feita)
+            // Registrar rejeição
+            stats.registrarPedidoRejeitado();
+            System.out.println("[Consumidor-" + id + "] REJEITADO (sem estoque): " + 
+                pedido.getProduto() + " x" + pedido.getQuantidade());
+        }
     }
 }

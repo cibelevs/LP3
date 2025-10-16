@@ -20,12 +20,14 @@ class Pedido implements Comparable<Pedido> {
         this.timestamp = LocalDateTime.now();
     }
     
-    // TODO: Implementar compareTo para ordenar por prioridade e timestamp
     @Override
     public int compareTo(Pedido outro) {
-        // Implementar comparação
-        int compara = Integer.compare(this.prioridade.getValor(), outro.prioridade.getValor());
-        if(compara != 0) return 0;
+        // Primeiro compara por prioridade (menor valor = maior prioridade)
+        int cmpPrioridade = Integer.compare(this.prioridade.getValor(), outro.prioridade.getValor());
+        if (cmpPrioridade != 0) {
+            return cmpPrioridade;
+        }
+        // Se mesma prioridade, compara por timestamp (mais antigo primeiro)
         return this.timestamp.compareTo(outro.getTimestamp());
     }
     
@@ -39,7 +41,8 @@ class Pedido implements Comparable<Pedido> {
     
     @Override
     public String toString() {
-        return String.format("Pedido#%d [%s] %s - %s x%d", 
-            id, prioridade, cliente, produto, quantidade);
+        return String.format("Pedido#%d [%s] %s - %s x%d (%s)", 
+            id, prioridade, cliente, produto, quantidade, 
+            timestamp.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss.SSS")));
     }
 }

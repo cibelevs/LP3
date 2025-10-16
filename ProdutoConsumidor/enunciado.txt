@@ -1,0 +1,30 @@
+
+/* Implemente um sistema em Java que simule o processamento concorrente 
+de pedidos vindos de diferentes plataformas de venda online (Web, Mobile e API).
+ O sistema deve seguir as seguintes regras:
+-  Produtores (fontes de pedidos):
+- Cada fonte (Web, Mobile, API) é representada por uma thread produtora.
+- Cada produtor gera pedidos aleatórios e os insere em uma fila compartilhada (BlockingQueue).
+- Cada pedido possui:
+        id (número sequencial),
+        cliente (nome gerado aleatoriamente),
+        valor,
+        origem (Web, Mobile ou API).
+Consumidores (processadores de pedidos):
+    São duas threads consumidoras que retiram pedidos da fila e 
+    os processam simulando um tempo de execução (por exemplo, Thread.sleep()).
+    A cada pedido processado, exibir na tela:
+    "Pedido X do cliente Y processado por <nome da thread>"
+    Controle de concorrência:
+    - Use uma BlockingQueue (como LinkedBlockingQueue) para garantir que os 
+    produtores e consumidores compartilhem a mesma fila de forma segura.
+    Utilize um Semaphore para limitar o número de pedidos sendo processados simultaneamente a 2.
+Estatísticas:
+   Crie uma classe GerenciadorEstatisticas com métodos sincronizados que contem:
+   Total de pedidos produzidos por origem.
+    Total de pedidos processados.
+    Ao final da execução, exiba um resumo com esses valores.
+Execução:
+    O programa principal deve criar e iniciar todas as threads.
+    Após um tempo (por exemplo, 10 segundos), o programa deve 
+    parar os produtores e exibir o relatório final. */=

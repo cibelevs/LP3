@@ -13,14 +13,17 @@ class Monitor implements Runnable {
     @Override
     public void run() {
         try {
-            while (ativo) {
-                // TODO: A cada 2 segundos, exibir estatísticas
+            System.out.println("[Monitor] Iniciando monitoramento a cada 2 segundos");
+            
+            while (ativo && !Thread.currentThread().isInterrupted()) {
                 Thread.sleep(2000);
                 stats.exibirEstatisticas(fila.size());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        
+        System.out.println("[Monitor] Encerrado");
     }
     
     public void parar() {
