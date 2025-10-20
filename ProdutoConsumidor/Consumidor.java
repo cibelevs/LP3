@@ -1,11 +1,10 @@
 package ProdutoConsumidor;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 public class Consumidor implements Runnable{
-    private BlockingQueue filaP = new LinkedBlockingQueue<Pedido>();
+    private BlockingQueue<Pedido> filaP;
     private Semaphore semaforo;
     private Estatisticas estats;
 
@@ -21,7 +20,8 @@ public class Consumidor implements Runnable{
         try {
             while (true) { 
                 semaforo.acquire();
-                Produtor produtor = filaP.take();
+                Pedido pedido = filaP.take();
+
 
                 System.out.println(Thread.currentThread().getName() + " processando ");
                 Thread.sleep(2000); // simula tempo de processamento

@@ -1,15 +1,19 @@
 package ProdutoConsumidor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
+
 
 public class Main {
 
     public static void main(String[] args) throws Exception{
         BlockingQueue<Pedido> fila = new LinkedBlockingQueue<>();
         Semaphore semaforo = new Semaphore(2);
-        Estatistica stats = new Estatistica();
+        Estatisticas stats = new Estatisticas();
 
-        Produtor web = new Produtor(fila, "Web", stats);
-        Produtor mobile = new Produtor(fila, "Mobile", stats);
-        Produtor api = new Produtor(fila, "Api", stats);
+        Produtor web = new Produtor("Web",fila, stats);
+        Produtor api = new Produtor("Api",fila, stats);
+        Produtor mobile = new Produtor("Mobile",fila, stats);
+                
 
 
         Thread tweb = new Thread(web);
@@ -33,7 +37,7 @@ public class Main {
 
         c1.interrupt();
         c2.interrupt();
-        stats.gerarEstatisticas();
+        stats.imprimeStats();
         System.out.println("fim");
     }
 }

@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class Produtor implements Runnable {
     private String[] fonte = {"Web", "API", "Mobile"};
+    private String origem;
     private String[] clientes = {"Alexander", "Eliza", "Burr", "Sabrina"};
     private BlockingQueue fila;
     private boolean ativo = true;
@@ -14,8 +15,8 @@ public class Produtor implements Runnable {
 
 
 
-    public Produtor(String[] fonte, BlockingQueue fila, Estatisticas stats) {
-        this.fonte = fonte;
+    public Produtor(String fonte, BlockingQueue fila, Estatisticas stats) {
+        this.origem = fonte;
         this.fila = fila;
         this.stats = stats;
     }
