@@ -7,7 +7,15 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/*
+ * Semáforo (Semaphore)
 
+    O que é: Controla quantas threads podem acessar um 
+    recurso ao mesmo tempo.
+
+    Quando usar: Se só N threads podem usar um recurso 
+    simultaneamente (ex: impressora, banco de dados).
+ */
 
 public class Semaphore1 {
     

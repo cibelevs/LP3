@@ -1,5 +1,14 @@
 package volat;
+/*
+ * Método volatile
 
+    O que é: Garante que todas as threads vejam o valor mais
+     recente de uma variável.
+
+    Quando usar: Quando uma variável é lida e escrita por várias threads, 
+    mas não precisa de operações atômicas complexas.
+ * 
+ */
 public class Volatile {
     private static int numero = 0;
     private static boolean preparado = false;

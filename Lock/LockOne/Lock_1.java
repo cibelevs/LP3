@@ -7,6 +7,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 //em sychronized vc precisa bloquear um metodo completo 
 // lock apresenta vantagens 
+/*
+ * Lock (ReentrantLock)
+
+    O que é: Controle de acesso a um recurso compartilhado, evitando
+     que duas threads acessem ao mesmo tempo.
+
+    Quando usar: Quando precisa de mais controle que synchronized, tipo
+     tentar pegar o lock sem bloquear.
+ */
 
 public class Lock_1 {
     private static int i = -1;

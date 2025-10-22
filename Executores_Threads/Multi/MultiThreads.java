@@ -5,6 +5,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
+/*
+ * Executores (Executor)
+
+    O que é: Uma forma de gerenciar threads sem criar manualmente 
+    Thread t = new Thread(...).
+
+    Quando usar: Quando precisa rodar várias tarefas em paralelo de 
+    forma organizada, especialmente se for criar muitas threads.
+    Ex: ExecutorService executor = Executors.newFixedThreadPool(5);
+ */
+
 public class MultiThreads {
     public static void main(String[] args) {
         ExecutorService executor = null;
