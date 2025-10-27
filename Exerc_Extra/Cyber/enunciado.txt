@@ -1,0 +1,72 @@
+Durante a Cyber Monday, milhões de pagamentos são processados simultaneamente por
+ diferentes canais — cartão de crédito, boleto e PIX.
+A equipe de TI da plataforma precisa garantir rapidez, consistência e segurança nas 
+operações financeiras, evitando duplicidades e falhas de validação.
+
+Você foi contratado para desenvolver o backend concorrente de processamento de 
+pagamentos, aplicando o padrão Produtor–Consumidor, permitindo que múltiplas fontes 
+(produtores) gerem transações simultaneamente, e múltiplos consumidores as processem em paralelo,
+ respeitando a prioridade do valor do pagamento e garantindo integridade nos dados da conta.
+
+⚙️ Requisitos
+1. Estrutura Básica
+    a) Classe Pagamento
+    A classe deve conter:
+    ID único do pagamento
+    Nome do cliente
+    Tipo de pagamento (PIX, CARTAO, BOLETO)
+    Valor (double)
+    Prioridade (alta, média, baixa — baseada no valor)
+    Timestamp de criação
+
+    b) Fila de Pagamentos
+    Deve usar PriorityBlockingQueue<Pagamento> (capacidade inicial 50)
+    Deve ser ordenada por:
+    Prioridade (ALTA > MÉDIA > BAIXA)
+    Tempo de criação (mais antigo primeiro)
+
+    c) Classe GerenciadorContas
+    Gerencia o saldo de clientes usando ConcurrentHashMap<String, Double>
+    Usa ReentrantReadWriteLock para controle de leitura/escrita
+
+    Métodos: consultarSaldo(String cliente)
+    debitar(String cliente, double valor)
+    creditar(String cliente, double valor)
+
+2. Produtores (GeradorPagamentos)
+
+    Representam fontes distintas: App, Site, ParceiroAPI
+    Cada produtor:
+    Gera pagamentos aleatórios (clientes, valores e tipo)
+    Insere na fila com put()
+    Simula atraso entre 100 e 300 ms
+    Gera 20 pagamentos cada
+    Deve usar ExecutorService.newFixedThreadPool(3)
+    Encerramento controlado após a geração.
+
+3. Consumidores (ProcessadorPagamentos)
+
+    Cada consumidor:
+    Remove pagamentos da fila com take() ou poll(timeout)
+    Verifica saldo do cliente antes de processar
+    Simula tempo de processamento (150–350 ms)
+    Atualiza o saldo com segurança (usando locks)
+    Registra estatísticas de processados e rejeitados (saldo insuficiente)
+    Deve haver 5 consumidores em um pool (newFixedThreadPool(5)).
+
+4. Monitoramento
+
+    Crie uma thread separada que, a cada 2 segundos, exiba:
+    Tamanho atual da fila
+    Pagamentos processados com sucesso
+    Pagamentos rejeitados
+    Taxa média de processamento (pagamentos/segundo)
+
+5. Relatório Final
+
+    Ao término da execução, o sistema deve exibir:
+    Total de pagamentos gerados
+    Total processados com sucesso
+    Total rejeitados
+    Tempo total de execução
+    Saldo final de cada cliente

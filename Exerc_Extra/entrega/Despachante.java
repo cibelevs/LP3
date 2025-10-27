@@ -1,9 +1,14 @@
 package Exerc_Extra.entrega;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Despachante implements Runnable {
+// ------------------------------------------------------------
+// CLASSE Despachante (CONSUMIDOR)
+// Retira entregas da fila, verifica veículos e simula despacho.
+// ------------------------------------------------------------
+class Despachante implements Runnable {
     private final String nome;
     private final FilaEntregas fila;
     private final GerenciadorVeiculos veiculos;
@@ -24,14 +29,17 @@ public class Despachante implements Runnable {
     public void run() {
         try {
             while (true) {
-                Entrega entrega = fila.getFila().poll();
+                // Usa poll() com timeout para detectar fim da fila
+                Entrega entrega = fila.getFila().poll(2, TimeUnit.SECONDS);
                 if (entrega == null) break;
 
                 System.out.println("[" + nome + "] Processando: " + entrega);
+
+                // Se houver veículo disponível
                 if (veiculos.reservarVeiculo()) {
-                    Thread.sleep(random.nextInt(250) + 150);
+                    Thread.sleep(random.nextInt(250) + 150); // simula tempo de entrega
                     realizadas.incrementAndGet();
-                    System.out.println("[" + nome + "] Concluída: " + entrega);
+                    System.out.println("[" + nome + "] CONCLUÍDA: " + entrega);
                     veiculos.liberarVeiculo("Moto");
                 } else {
                     System.out.println("[" + nome + "] SEM VEÍCULO: " + entrega);
@@ -44,4 +52,3 @@ public class Despachante implements Runnable {
         System.out.println("[" + nome + "] Finalizou processamento.");
     }
 }
-

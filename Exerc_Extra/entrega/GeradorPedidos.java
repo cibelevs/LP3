@@ -2,7 +2,12 @@ package Exerc_Extra.entrega;
 
 import java.util.Random;
 
-public class GeradorPedidos implements Runnable {
+// ------------------------------------------------------------
+// CLASSE GeradorPedidos (PRODUTOR)
+// Cria entregas aleatórias e adiciona à fila.
+// Representa uma "fonte" (App, E-commerce, Corporativo).
+// ------------------------------------------------------------
+class GeradorPedidos implements Runnable {
     private final String nomeFonte;
     private final FilaEntregas fila;
     private final int total;
@@ -20,15 +25,19 @@ public class GeradorPedidos implements Runnable {
         System.out.println("[" + nomeFonte + "] Iniciando geração de " + total + " entregas...");
         try {
             for (int i = 0; i < total; i++) {
+                // Cria entrega com dados aleatórios
                 Entrega e = new Entrega(
                         contador++,
                         gerarCliente(),
-                        "Rua " + (char)('A' + random.nextInt(5)),
+                        "Rua " + (char) ('A' + random.nextInt(5)),
                         random.nextInt(20) + 1,
                         Prioridade.values()[random.nextInt(Prioridade.values().length)]
                 );
+
                 fila.adicionarEntrega(e);
                 System.out.println("[" + nomeFonte + "] Gerou: " + e);
+
+                // Simula atraso entre as gerações
                 Thread.sleep(random.nextInt(150) + 100);
             }
         } catch (InterruptedException ex) {
@@ -37,9 +46,9 @@ public class GeradorPedidos implements Runnable {
         System.out.println("[" + nomeFonte + "] Finalizou geração de entregas.");
     }
 
+    // Gera nomes de clientes aleatórios
     private String gerarCliente() {
         String[] nomes = {"Ana", "Carlos", "Pedro", "João", "Maria"};
         return nomes[random.nextInt(nomes.length)];
     }
 }
-
