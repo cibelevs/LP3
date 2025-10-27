@@ -1,0 +1,233 @@
+Pagamento — modelo de dados
+
+    Implementa Runnable? Não.
+    É um POJO (objeto de dados) que representa a transação.
+
+    Comparable? Pode implementar Comparable<Pagamento> (ou você pode criar um 
+    Comparator<Pagamento> externo).
+
+    Se implementar Comparable, compareTo deve ordenar por: prioridade (ALTA → MÉDIA → BAIXA)
+     e, em caso de empate, por timestamp (mais antigo primeiro).
+
+    Alternativa: criar um método estático Comparator.comparing(...) e passar para a 
+    PriorityBlockingQueue.
+
+    Campos recomendados: id (int), nome (String), tipoPagamento (enum), valor 
+    (double), Timestamp tempo (ou Instant), Prioridade prioridade (enum).
+
+    Imutabilidade: prefira campos final e sem setters (aumenta segurança concorrente).
+
+    Timestamp: pode ser recebido no construtor ou gerado com Timestamp.from(Instant.now()).
+
+    Exemplo de compareTo (ordem):
+
+    int c = this.prioridade.ordinal() - outro.prioridade.ordinal();
+    if (c != 0) return c;
+    return this.tempo.compareTo(outro.tempo);
+
+2) Fila de pagamentos — PriorityBlockingQueue<Pagamento>
+
+    Implementa Runnable? Não — é um recurso compartilhado.
+
+    Capacidade inicial: new PriorityBlockingQueue<>(50, comparator) — observação:
+     PriorityBlockingQueue não tem limite estrito, o número inicial é apenas para desempenho; 
+     se quiser limite rígido, use PriorityBlockingQueue com lógica externa ou LinkedBlockingQueue
+      + comparator wrapper.
+
+    Comparator / Comparable: usar o Comparator ou confiar no compareTo do Pagamento.
+
+    Operações que os produtores usam: fila.put(pagamento) — bloqueante se você usar estrutura 
+    com limite (por exemplo ArrayBlockingQueue ou LinkedBlockingQueue); com PriorityBlockingQueue 
+    puro, put não bloqueia por limite (mas é ok usar put por consistência).
+
+    Operações que os consumidores usam: preferir poll(timeout, unit) para detectar o fim,
+     ou take() se você usar um sentinel (objeto marcador) para sinalizar fim.
+
+    Recomendado no exercício: poll(timeout) porque permite encerrar automaticamente quando
+     produtores terminaram e fila ficou vazia.
+
+    Observação: PriorityBlockingQueue ordena itens conforme Comparator/Comparable e não 
+    garante ordem estrita para itens de igual prioridade além do que o comparator determina.
+
+3) GerenciadorContas — recurso compartilhado (saldos)
+
+    Implementa Runnable? Não — é um serviço/objeto compartilhado.
+    Estrutura interna: ConcurrentHashMap<String, Double> contas.
+    Sincronização: ReentrantReadWriteLock lock.
+    consultarSaldo(...) usa lock.readLock().lock()/unlock().
+    debitar(...) e creditar(...) usam lock.writeLock().lock()/unlock().
+    Por que usar read/write? Permite várias leituras simultâneas (consultas) e 
+    garante escrita exclusiva quando altera saldo.
+    Método debitar() deve ser atômico: ler saldo, conferir suficiente, atualizar
+     — tudo dentro do writeLock.
+    Retorno de debitar(): boolean — true se debitou, false caso insuficiente.
+    Adicionar contas: método adicionarConta(nome, saldoInicial) com writeLock.
+
+4) GeradorPagamentos — produtor
+
+    Implementa Runnable? Sim.
+
+    Responsabilidade: gerar N pagamentos (ex.: 20 por produtor), inserir na fila.
+
+    Estrutura do run(): geralmente um for simples:
+
+    for (int i = 0; i < total; i++) {
+        Pagamento p = gerarPagamentoAleatorio(...); // id, nome, valor, tipo
+        fila.put(p); // insere; trata InterruptedException
+        log("Gerou: " + p);
+        Thread.sleep(random(100,300)); // atraso simulado
+    }
+
+
+    Uso de ExecutorService: os produtores são submetidos a um 
+    pool Executors.newFixedThreadPool(3).
+    Após submit(...) em todos, faça produtores.shutdown(); 
+    produtores.awaitTermination(timeout, unit);.
+
+    Tratamento de InterruptedException: capturar, Thread.currentThread().interrupt();
+     e sair do loop.
+
+    IDs: manter contador thread-safe (p.ex. AtomicInteger contador compartilhado 
+    entre produtores, ou cada produtor gera um bloco de IDs).
+
+5) ProcessadorPagamentos — consumidor
+
+    Implementa Runnable? Sim.
+
+    Estrutura do run() recomendada (padrão robusto):
+
+    while (executando || !fila.isEmpty()) {
+        Pagamento p = fila.poll(1, TimeUnit.SECONDS); // espera com timeout
+        if (p != null) processarPagamento(p);
+    }
+
+    executando é uma flag controlada (volatile boolean) ou você depende do
+     ExecutorService.shutdown() e poll(timeout) apenas.
+
+    processarPagamento(p) faz:
+
+    Simular tempo de processamento: Thread.sleep(random(150,350)).
+
+    Verificar saldo: double saldo = gerenciador.consultarSaldo(cliente);
+
+    Tentar débito atômico: if (gerenciador.debitar(cliente, valor)) 
+    { processados.incrementAndGet(); } else { rejeitados.incrementAndGet(); }
+
+    Logar resultado.
+
+    Contadores: AtomicInteger processados e AtomicInteger rejeitados para
+     estatísticas thread-safe.
+
+    Fechamento: use consumidores.shutdown() no Main e awaitTermination. 
+    Consumidor deve usar poll(timeout) para encerrar após fila vazia.
+
+    Alternativa: usar take() e enviar um poison pill (objeto marcador) 
+    por consumidor para sinalizar parada. Se usar take(), precisa enviar uma instância
+     especial por consumidor para liberar cada um.
+
+6) Monitoramento — thread de observação
+
+    Implementa Runnable? Sim.
+
+    Loop: while (!Thread.currentThread().isInterrupted()) { printStatus(); 
+    Thread.sleep(intervalMillis); }
+
+    Usa fila.size(), processados.get(), rejeitados.get(), e calcula taxa média 
+    processados / tempoDecorrido.
+
+    Intervalo: por enunciado, a cada 2 segundos (ou 3 s no outro exercício).
+
+    Parada: chame monitorThread.interrupt() do Main depois de consumidores
+     finalizarem; capture InterruptedException e encerre.
+
+7) Main / SistemaPagamentos — orquestração
+
+    Não implementa Runnable.
+
+    Fluxo típico:
+
+    Criar PriorityBlockingQueue<Pagamento> com comparator (ou confiar em Pagamento.compareTo).
+
+    Criar GerenciadorContas e popular com contas e saldos iniciais.
+
+    Criar AtomicInteger processados, rejeitados.
+
+    Criar ExecutorService produtores = Executors.newFixedThreadPool(3) e
+     consumidores = Executors.newFixedThreadPool(5).
+
+    Iniciar monitor como new Thread(new Monitoramento(...)) e monitor.start().
+
+    produtores.submit(new GeradorPagamentos(...)) × 3; depois produtores.shutdown(); 
+    produtores.awaitTermination(timeout).
+
+    Quando produtores finalizarem, iniciar consumidores: submeter 5 ProcessadorPagamentos.
+
+    Alternativa prática: você pode submeter consumidores antes 
+    (eles ficam bloqueados esperando itens).
+
+    consumidores.shutdown(); consumidores.awaitTermination(timeout).
+
+    monitor.interrupt(); e monitor.join() (opcional).
+
+    gerenciador.exibirSaldosFinais() e imprimir relatório final (totais, tempos, taxa média).
+
+    Timeouts: escolha tempos razoáveis para awaitTermination (p.ex. alguns 
+    segundos a minutos dependendo do volume simulado).
+
+    Medição de tempo total: long start = System.currentTimeMillis(), 
+    depois elapsed = System.currentTimeMillis() - start.
+
+8) Tratamento de InterruptedException e encerramento controlado
+
+    Produtores: quando capturar InterruptedException dentro do run, chame
+     Thread.currentThread().interrupt() e saia.
+
+    Consumidores: usar poll(timeout) permite detectar fim suave; se for
+     interrompido, trate a interrupção e finalize.
+
+    Main: nunca chame System.exit() para encerrar threads — use shutdown()
+     e awaitTermination() para encerrar pools com elegância.
+
+    Monitor: interrompa a thread (monitor.interrupt()) quando quiser que 
+    ela finalize o loop.
+
+9) Detalhes práticos e melhores práticas
+
+    IDs de pagamentos: use AtomicInteger global para gerar IDs sequenciais.
+    Random delays: use ThreadLocalRandom.current().nextInt(min, max + 1).
+    Logs: use System.out.printf com timestamps para facilitar debugging.
+    Imutabilidade: torne Pagamento imutável (final fields).
+    Comparator vs Comparable: se quiser flexibilidade (vários modos de priorização),
+     prefira Comparator externo; para solução simples,
+     Comparable dentro de Pagamento é suficiente.
+    Capacidade da fila: se quiser simular bloqueio quando fila cheia, prefira
+     ArrayBlockingQueue ou LinkedBlockingQueue com capacidade e usar um PriorityBlockingQueue 
+     substituto que respeite limite (mas PriorityBlockingQueue por si só não bloqueia por limite).
+    Poison pill pattern: alternativa para encerrar consumidores quando usar take() 
+    — inserir um objeto especial por consumidor.
+
+10) Padrões de loops (resumo rápido)
+
+    Produtor (for):
+
+    for (int i = 0; i < totalPedidos; i++) {
+        Pagamento p = gerar(...);
+        fila.put(p);
+        Thread.sleep(randomDelay);
+    }
+
+
+    Consumidor (while):
+
+    while (executando || !fila.isEmpty()) {
+        Pagamento p = fila.poll(1, TimeUnit.SECONDS);
+        if (p != null) processar(p);
+    }
+
+
+    Monitor (while com sleep):
+
+    while (!Thread.currentThread().isInterrupted()) {
+        exibirStatus();
+        Thread.sleep(2000);
+    }
