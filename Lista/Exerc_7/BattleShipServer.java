@@ -1,9 +1,14 @@
 package Lista.Exerc_7;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * BattleshipServer.java
@@ -18,7 +23,7 @@ import java.util.concurrent.*;
  * - É uma implementação educativa/simplificada, focada em como coordenar entrada/saída,
  *   threads e estado do jogo no servidor.
  */
-public class BattleshipServer {
+public class BattleShipServer {
 
     private static final int PORT = 5555;
     private static final int BOARD_SIZE = 5;
@@ -221,7 +226,7 @@ public class BattleshipServer {
 
     public static void main(String[] args) {
         try {
-            new BattleshipServer().start();
+            new BattleShipServer().start();
         } catch (IOException e) {
             e.printStackTrace();
         }

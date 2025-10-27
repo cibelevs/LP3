@@ -1,0 +1,110 @@
+🧾 Exercício Prático – Sistema de Processamento de Entregas
+
+    Durante o período de festas de fim de ano, uma empresa de logística e entregas 
+    rápidas enfrenta um volume extremo de solicitações simultâneas vindas de aplicativos
+    parceiros, e-commerce e atendimento corporativo.
+
+    Para evitar atrasos e garantir consistência nas operações, você foi contratado
+    para desenvolver um sistema concorrente de processamento de entregas, aplicando 
+    o padrão Produtor–Consumidor.
+
+    O sistema deve permitir que múltiplas fontes gerem solicitações de entrega ao
+    mesmo tempo e múltiplos consumidores as processem em paralelo, respeitando prioridades
+    de urgência e evitando condições de corrida.
+
+⚙️ Requisitos
+1. Estrutura Básica
+
+    a) Classe Entrega
+        ID único da entrega
+        Nome do cliente
+        Endereço de destino
+        Distância (em km)
+        Prioridade (URGENTE, NORMAL, ECONOMICA)
+        Timestamp de criação
+
+    b) Fila de Entregas
+        Tipo: PriorityBlockingQueue<Entrega> (capacidade inicial de 30)
+        Ordenação:
+        Prioridade (URGENTE > NORMAL > ECONOMICA)
+        Tempo de criação (mais antigo primeiro)
+
+    c) Classe GerenciadorVeiculos
+        Armazena veículos e disponibilidade em ConcurrentHashMap<String, Boolean>
+        Usa ReentrantReadWriteLock
+        Métodos:
+        consultarDisponibilidade()
+        reservarVeiculo()
+        liberarVeiculo()
+
+2. Produtores
+    Classe GeradorPedidos
+    Representa canais: App, E-commerce, Corporativo
+    Gera entregas aleatórias continuamente
+    Insere na fila com put()
+    Atraso: 100–250 ms
+    Gera pelo menos 15 entregas cada
+    Usa ExecutorService.newFixedThreadPool(3)
+
+3. Consumidores
+
+    Classe Despachante
+    Remove entregas com take()
+    Verifica disponibilidade de veículo antes de despachar
+    Simula tempo de despacho (150–400 ms)
+    Atualiza disponibilidade com locks
+    Registra entregas realizadas e pendentes (sem veículo)
+    ExecutorService
+    Executors.newFixedThreadPool(4)
+    Processa até a fila esvaziar
+    Usa poll(timeout) para detectar o fim
+    Sincronização
+    Usa ReentrantLock ou AtomicInteger para contadores compartilhados
+
+4. Monitoramento
+
+    Thread de Monitoramento
+    A cada 3 s, exibir:
+    Tamanho atual da fila
+    Entregas realizadas
+    Entregas pendentes
+    Taxa média (entregas/segundo)
+    Relatório Final
+    Total gerado
+    Realizadas / Pendentes
+    Tempo total
+    Estado final dos veículos
+
+🧱 Restrições
+
+    ✅ Usar:
+    PriorityBlockingQueue
+    ExecutorService
+    ReentrantLock / ReentrantReadWriteLock
+    ConcurrentHashMap
+    Tratamento de InterruptedException
+
+    🚫 Proibido:
+
+    synchronized, wait(), notify(), notifyAll()
+
+    Busy waiting sem propósito
+
+🖥️ Saída Esperada (exemplo ilustrativo)
+[App] Gerou: Entrega#1 [URGENTE] Ana Lima - Rua A, 12km (10:03:21.123)
+[E-commerce] Gerou: Entrega#2 [NORMAL] Pedro Souza - Av. B, 8km (10:03:21.215)
+[Corporativo] Gerou: Entrega#3 [ECONOMICA] Maria Rocha - Rua C, 15km (10:03:21.299)
+
+[Despachante-1] Processando: Entrega#1 [URGENTE] Ana Lima - 12km
+[Despachante-2] Processando: Entrega#2 [NORMAL] Pedro Souza - 8km
+[Despachante-3] REJEITADO (sem veículo): Entrega#3 - 15km
+
+┌──────────────────────────────┐
+│ MONITORAMENTO EM TEMPO REAL  │
+├──────────────────────────────┤
+│ Fila atual      : 12 entregas │
+│ Realizadas      : 18          │
+│ Pendentes       : 2           │
+│ Taxa média      : 5.4 ent/s   │
+│ Tempo decorrido : 6s          │
+└──────────────────────────────┘

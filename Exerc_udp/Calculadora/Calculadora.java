@@ -1,4 +1,4 @@
-package Calculadora;
+package Exerc_udp.Calculadora;
 
 public class Calculadora {
     

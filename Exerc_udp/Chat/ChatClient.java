@@ -1,3 +1,5 @@
+package Exerc_udp.Chat;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader; // Importa a Classe Atômica

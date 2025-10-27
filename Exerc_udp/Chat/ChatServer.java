@@ -1,7 +1,15 @@
-import java.io.*;
-import java.net.*;
+package Exerc_udp.Chat;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader; // Importa a coleção concorrente!
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList; // Importa a coleção concorrente!
+import java.util.concurrent.CopyOnWriteArrayList;
 
 // Classe principal do servidor de chat
 public class ChatServer {
