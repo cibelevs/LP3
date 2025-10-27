@@ -1,0 +1,35 @@
+Implemente um servidor TCP que aceita conexões de clientes e ecoa de volta qualquer
+mensagem recebida.
+2.
+Crie um servidor TCP capaz de receber arquivos de clientes e salvá los no disco do servidor.
+O cliente deve ser capaz de enviar arquivos para o servidor.
+3.
+Implemente um servidor TCP que mantém um dicionário de palavras e seus significados.
+O cliente pode enviar uma palavra para o servidor e receber seu significado como
+resposta.
+4.
+Crie um servidor TCP que gera um número aleatório e desafia os clientes a adivinhá lo. O
+servidor fornece dicas sobre se o número é maior ou menor do que a tentativa do cliente.
+5.
+Desenvolva um servidor TCP para um sistema de leilão onde os clientes podem fazer
+lances em itens. O servidor deve coordenar os lances e notificar todos os clientes sobre o
+status do leilão.
+6.
+Implemente um servidor TCP para um sistema de votação onde os clientes podem votar
+em opções específicas. O servidor deve contar os votos e fornecer resultados atualizados
+aos clientes.
+7.
+Crie um servidor TCP para um jogo de batalha naval. O servidor deve coordenar o
+movimento do jogador e informar sobre o status do jogo.
+8.
+Desenvolva um programa que execute múltiplas threads para simular o processamento
+paralelo de tarefas. Cada thread pode realizar uma operação específica e os resultados
+podem ser combinados ao final da execução.
+9.
+Implemente o problema clássico do produtor consumidor usando threads em Java. Crie
+uma classe que represente um buffer com capacidade limitada, onde os produtores
+colocam itens e os consumidores retiram esses itens do buffer.
+10.
+Desenvolva um programa que utilize threads para contar o número de palavras em vários
+arquivos de texto em paralelo. Cada thread pode processar um arquivo diferente e ao
+final, o programa deve somar o número total de palavras em todos os arquivos.
