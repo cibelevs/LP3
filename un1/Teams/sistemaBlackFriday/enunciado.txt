@@ -1,0 +1,107 @@
+Durante a Black Friday, lojas virtuais enfrentam o maior volume de transações do
+ano. Milhares de clientes realizam compras simultaneamente por diferentes canais,
+website, aplicativo móvel e APIs de parceiros e vem gerando uma sobrecarga no sistema
+de processamento de pedidos. Em períodos de pico, um sistema sequencial torna-se
+incapaz de lidar com a alta demanda: os pedidos acumulam-se em filas, o estoque é
+confirmado incorretamente e as respostas aos clientes tornam-se lentas.
+Você foi contratado para desenvolver o backend de processamento de pedidos
+da loja durante a Black Friday, com o objetivo de garantir rapidez, consistência e
+segurança no controle de estoque. Para isso, deverá aplicar o padrão Produtor–
+Consumidor, permitindo que múltiplas fontes (produtores) enviem pedidos ao mesmo
+tempo e múltiplos consumidores os processem em paralelo, respeitando as prioridades
+e evitando condições de corrida.
+O objetivo do exercício é desenvolver um sistema de processamento concorrente
+de pedidos de e-commerce, simulando um ambiente de alta demanda durante a Black
+Friday. O sistema deve possuir múltiplos produtores que geram pedidos e múltiplos
+consumidores que processam esses pedidos simultaneamente, respeitando a
+prioridade de atendimento e garantindo integridade nos dados de estoque.
+REQUISITOS:
+1) Estrutura Básica
+a) Classe Pedido
+i) Criar uma classe que contenha:
+ii) ID único do pedido
+iii) Nome do cliente
+iv) Produto
+v) Quantidade
+vi) Prioridade (ALTA, MÉDIA, BAIXA)
+vii) Timestamp de criação
+b) Fila de Pedidos
+i) Utilizar PriorityBlockingQueue para armazenar os pedidos, respeitando as
+prioridades (capacidade inicial de 50 pedidos).
+ii) Implementar um Comparator que ordene os pedidos por:
+(1) Prioridade (da mais alta para a mais baixa)
+(2) Tempo de criação (do mais antigo para o mais recente)
+c) Classe GerenciadorEstoque
+i) Implementar um gerenciador de estoque thread-safe utilizando:
+(1) ConcurrentHashMap para armazenar produtos e quantidades
+(2) ReentrantReadWriteLock para controlar operações de leitura e escrita
+ii) Métodos obrigatórios:
+(1) consultarEstoque()UNIVERSIDADE DO ESTADO DA BAHIA
+Departamento de Ciências Exatas e da Terra, Campus I
+Colegiado de Sistemas de Informação / Semestre: 2025.2
+Disciplina: Linguagem de Programação III / Professor: Vagner Fonseca
+Aluno: _____________________________________________________________
+(2) reservarEstoque()
+(3) devolverEstoque()
+2) Produtores
+a) Classe Produtor
+i) Cada produtor deverá:
+(1) Gerar pedidos aleatórios de forma contínua
+(2) Representar uma fonte distinta (API, Web ou Mobile)
+(3) Inserir pedidos na fila com o método put() (bloqueia se fila estiver cheia)
+(4) Simular um atraso entre pedidos (50 a 200 ms)
+(5) Registrar o número de pedidos gerados
+b) ExecutorService para Produtores
+i) Criar um pool de threads com Executors.newFixedThreadPool(3)
+ii) Cada produtor deve gerar pelo menos 20 pedidos
+iii) Implementar finalização controlada (shutdown) após a conclusão das tarefas
+3) Consumidores
+a) Classe Consumidor
+i) Cada consumidor deverá:
+(1) Remover pedidos da fila com take() ou poll(timeout) (take bloqueia se
+vazia; poll com timeout permite detectar fim do processamento)
+(2) Validar a disponibilidade de estoque antes do processamento
+(3) Simular o tempo de processamento (100 a 300 ms)
+(4) Atualizar o estoque de forma segura com locks
+(5) Tratar pedidos rejeitados (por falta de estoque)
+(6) Registrar estatísticas de pedidos processados e rejeitados
+b) ExecutorService para Consumidores
+i) Criar um pool de threads com Executors.newFixedThreadPool(5)
+ii) Os consumidores devem processar pedidos até que a fila esteja vazia
+iii) Utilizar poll(timeout) para detectar o fim do processamento
+c) Sincronização e Locks
+i) Utilizar ReentrantLock ou classes Atomic (AtomicInteger) para proteger
+estatísticas compartilhadas
+ii) Garantir atomicidade nas operações de atualização de estoque
+4) Coordenação e Relatórios
+a) Monitoramento em Tempo Real
+i) Criar uma thread dedicada de monitoramento que, a cada 2 segundos, exiba:
+ii) Tamanho atual da fila
+iii) Quantidade de pedidos processados
+iv) Quantidade de pedidos rejeitados
+v) Taxa média de processamento (pedidos/segundo)
+b) Relatório Final
+i) Ao final da execução, o sistema deve apresentar:
+(1) Total de pedidos gerados
+(2) Total de pedidos processados com sucesso
+(3) Total de pedidos rejeitados (sem estoque)
+(4) Tempo total de execuçãoUNIVERSIDADE DO ESTADO DA BAHIA
+Departamento de Ciências Exatas e da Terra, Campus I
+Colegiado de Sistemas de Informação / Semestre: 2025.2
+Disciplina: Linguagem de Programação III / Professor: Vagner Fonseca
+Aluno: _____________________________________________________________
+(5) Estoque final de cada produto
+•Requisitos Técnicos Obrigatórios
+o O programa deve utilizar obrigatoriamente:
+▪ BlockingQueue (PriorityBlockingQueue ou LinkedBlockingQueue)
+▪ ExecutorService para gerenciamento de threads
+▪ ReentrantLock e/ou ReentrantReadWriteLock
+▪ ConcurrentHashMap para dados compartilhados
+▪ Tratamento adequado de InterruptedException
+▪ Encerramento controlado e seguro das threads
+•Restrições
+o Não é permitido o uso de:
+▪ synchronized, wait(), notify() ou notifyAll()
+▪ Busy waiting ou polling com Thread.sleep() sem propósito de
+simulação
+▪ Estruturas que burlem o controle de concorrência exigido
